@@ -33,6 +33,25 @@
       color: #888;
       text-align: center;
     }
+    .preview-controls {
+      max-width: 900px;
+      margin: 8px auto 0;
+      padding: 12px 16px;
+      font-size: 0.85em;
+      background: #fff;
+      border: 1px solid #e4e4e7;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .preview-controls input {
+      padding: 5px 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font: inherit;
+    }
 
     /* ===================================================================
        Below is a faithful copy of desktop/desktop.scss (compiled to CSS).
@@ -41,7 +60,7 @@
     #game-schedules {
       font-family: "Roboto Condensed", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       display: flex;
-      flex-wrap: nowrap;
+      flex-wrap: wrap;
       justify-content: center;
       gap: 20px;
       align-items: center;
@@ -52,8 +71,10 @@
       box-sizing: border-box;
     }
 
-    /* Rounded "pill" card — sizes to its content (Variant A) so a lone game
-       doesn't stretch, and multiple games shrink side by side rather than stacking. */
+    /* Rounded "pill" card — sizes to its content and never shrinks below it, so
+       the contents can't spill outside the rounded background. When the row runs
+       out of width (e.g. browser text-zoom / 125%), pills wrap to the next line
+       intact rather than overflowing their own boundaries. */
     .sport-schedule-box {
       display: none;
       align-items: center;
@@ -63,8 +84,8 @@
       border-radius: 999px;
       padding: 8px 24px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-      flex: 0 1 auto;
-      min-width: 0;
+      flex: 0 0 auto;
+      max-width: 100%;
       justify-content: flex-start;
     }
 
@@ -170,6 +191,8 @@
     .countdown-box {
       gap: 16px;
       font-variant-numeric: tabular-nums;
+      flex-wrap: wrap;
+      justify-content: center;
     }
 
     .cdlabel {
@@ -193,6 +216,8 @@
 
     .cd-units {
       display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
       align-items: stretch;
       gap: 8px;
     }
@@ -242,6 +267,12 @@
     It attempts to fetch the live schedule JSON from S3; if that is blocked (e.g. opened via
     <code>file://</code>), it falls back to embedded sample data. A box only appears when a sport
     has a game on or after today (<span id="today-est"></span>, America/New_York).
+  </div>
+
+  <div class="preview-controls">
+    <label for="opp-input"><strong>Football opponent</strong> (demo override — type a longer name to test):</label>
+    <input type="text" id="opp-input" value="North Carolina" size="24">
+    <span style="color:#888;">then zoom the browser (Ctrl/⌘&nbsp;+) toward ~125% to watch it stay together</span>
   </div>
 
   <!-- ===== copy of desktop/header.html ===== -->
@@ -355,6 +386,59 @@
     };
 
     let usedFallback = false;
+    const configByDiv = Object.fromEntries(schedulesToLoad.map(c => [c.divId, c]));
+    const loadedGames = {}; // divId -> upcoming game object
+
+    // Preview-only: let the football opponent be overridden so you can eyeball a
+    // longer name (e.g. "North Carolina") next to the countdown pill.
+    const opponentFor = (config, game) => {
+      if (config.divId === 'football') {
+        const ov = document.getElementById('opp-input').value.trim();
+        if (ov) return ov;
+      }
+      return game.opponent;
+    };
+
+    const renderPill = (config) => {
+      const game = loadedGames[config.divId];
+      if (!game) return;
+      const targetDiv = document.getElementById(config.divId);
+      if (!targetDiv) return;
+
+      const gameDateParts = game.date.split('-');
+      const gameDate = new Date(gameDateParts[0], gameDateParts[1] - 1, gameDateParts[2]);
+      const formattedDate = gameDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+      const dateTimeString = game.time === 'TBD'
+        ? formattedDate
+        : `${formattedDate} &middot; ${game.time}`;
+
+      // Home/away prefix only when the data explicitly says so.
+      const homeAway = typeof game.home === 'boolean'
+        ? `<span class="ha">${game.home ? 'vs' : '@'}</span> `
+        : '';
+
+      // TV network chip only when a network is set (tv can be null).
+      const tvChip = game.tv
+        ? `<span class="tv-chip"><span class="dot"></span>${game.tv}</span>`
+        : '';
+
+      targetDiv.innerHTML = `
+        <div class="game-cluster">
+          <img src="${config.iconUrl}" alt="${config.title} icon" class="sport-icon">
+          <div class="game-matchup">
+            <p class="kicker">Next &middot; ${config.title}</p>
+            <p class="opponent">${homeAway}${opponentFor(config, game)}</p>
+          </div>
+        </div>
+        <div class="game-when">
+          <p class="meta">${dateTimeString}</p>
+          <p class="loc">${game.location}</p>
+        </div>
+        ${tvChip}
+      `;
+      targetDiv.style.display = 'flex';
+    };
 
     const processSchedule = async (config) => {
       let games;
@@ -373,42 +457,15 @@
       const upcomingGame = games.find(game => game.date >= todayESTString);
 
       if (upcomingGame) {
-        const targetDiv = document.getElementById(config.divId);
-        const gameDateParts = upcomingGame.date.split('-');
-        const gameDate = new Date(gameDateParts[0], gameDateParts[1] - 1, gameDateParts[2]);
-        const formattedDate = gameDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-
-        const dateTimeString = upcomingGame.time === 'TBD'
-          ? formattedDate
-          : `${formattedDate} &middot; ${upcomingGame.time}`;
-
-        // Home/away prefix only when the data explicitly says so.
-        const homeAway = typeof upcomingGame.home === 'boolean'
-          ? `<span class="ha">${upcomingGame.home ? 'vs' : '@'}</span> `
-          : '';
-
-        // TV network chip only when a network is set (tv can be null).
-        const tvChip = upcomingGame.tv
-          ? `<span class="tv-chip"><span class="dot"></span>${upcomingGame.tv}</span>`
-          : '';
-
-        targetDiv.innerHTML = `
-          <div class="game-cluster">
-            <img src="${config.iconUrl}" alt="${config.title} icon" class="sport-icon">
-            <div class="game-matchup">
-              <p class="kicker">Next &middot; ${config.title}</p>
-              <p class="opponent">${homeAway}${upcomingGame.opponent}</p>
-            </div>
-          </div>
-          <div class="game-when">
-            <p class="meta">${dateTimeString}</p>
-            <p class="loc">${upcomingGame.location}</p>
-          </div>
-          ${tvChip}
-        `;
-        targetDiv.style.display = 'flex';
+        loadedGames[config.divId] = upcomingGame;
+        renderPill(config);
       }
     };
+
+    // Re-render the football pill live as you edit the demo opponent name.
+    document.getElementById('opp-input').addEventListener('input', () => {
+      renderPill(configByDiv['football']);
+    });
 
     document.getElementById('today-est').textContent = getTodayInEST();
 

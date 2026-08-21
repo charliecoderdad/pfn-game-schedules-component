@@ -3,7 +3,7 @@
 #game-schedules {
       font-family: "Roboto Condensed", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       display: flex;
-      flex-wrap: nowrap;
+      flex-wrap: wrap;
       justify-content: center;
       gap: 20px;
       align-items: center;
@@ -14,8 +14,11 @@
       box-sizing: border-box;
     }
 
-    /* Rounded "pill" card — sizes to its content (Variant A) so a lone game
-       doesn't stretch, and multiple games shrink side by side rather than stacking. */
+    /* Rounded "pill" card — sizes to its content and never shrinks below it, so
+       the contents can't spill outside the rounded background. When the row runs
+       out of width (e.g. browser text-zoom / 125%), pills wrap to the next line
+       intact rather than overflowing their own boundaries. max-width caps a lone
+       oversized pill at the banner width at extreme zoom. */
     .sport-schedule-box {
       display: none;
       align-items: center;
@@ -25,8 +28,8 @@
       border-radius: 999px;
       padding: 8px 24px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-      flex: 0 1 auto;
-      min-width: 0;
+      flex: 0 0 auto;
+      max-width: 100%;
       justify-content: flex-start;
     }
 
@@ -138,6 +141,8 @@
     .countdown-box {
       gap: 16px;
       font-variant-numeric: tabular-nums;
+      flex-wrap: wrap;
+      justify-content: center;
     }
 
     .cdlabel {
@@ -161,6 +166,8 @@
 
     .cd-units {
       display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
       align-items: stretch;
       gap: 8px;
     }
