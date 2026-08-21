@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Schedules v2 — Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Roboto+Condensed:wght@400;500;700&display=swap">
+  <style>
+    /* --- Page chrome (preview only, NOT part of the component) --- */
+    body {
+      margin: 0;
+      background: #f4f4f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #333;
+    }
+    .preview-note {
+      max-width: 900px;
+      margin: 24px auto 0;
+      padding: 12px 16px;
+      font-size: 0.85em;
+      color: #555;
+      background: #fff;
+      border: 1px solid #e4e4e7;
+      border-radius: 8px;
+    }
+    .preview-note code { background: #f4f4f5; padding: 1px 5px; border-radius: 4px; }
+    .preview-source {
+      max-width: 900px;
+      margin: 8px auto 24px;
+      font-size: 0.8em;
+      color: #888;
+      text-align: center;
+    }
+
+    /* ===================================================================
+       Below is a faithful copy of desktop/desktop.scss (compiled to CSS).
+       Keep in sync with the component if you change the styling there.
+       =================================================================== */
+    #game-schedules {
+      font-family: "Roboto Condensed", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: center;
+      gap: 20px;
+      align-items: center;
+      padding: 12px 16px;
+      background-image: linear-gradient(to bottom right, red, black);
+      border-bottom: 1px solid #ddd;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Rounded "pill" card — sizes to its content (Variant A) so a lone game
+       doesn't stretch, and multiple games shrink side by side rather than stacking. */
+    .sport-schedule-box {
+      display: none;
+      align-items: center;
+      gap: 16px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 999px;
+      padding: 8px 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      flex: 0 1 auto;
+      min-width: 0;
+      justify-content: flex-start;
+    }
+
+    .sport-icon {
+      width: 46px;
+      height: 46px;
+      flex-shrink: 0;
+      object-fit: contain;
+    }
+
+    .game-cluster {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .game-matchup {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      min-width: 0;
+    }
+
+    .game-matchup .kicker {
+      margin: 0;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      font-size: 0.6rem;
+      color: #cc0000;
+      white-space: nowrap;
+    }
+
+    .game-matchup .opponent {
+      margin: 0;
+      font-family: "Oswald", sans-serif;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      font-size: 1.35rem;
+      line-height: 1.15;
+      color: #000;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .game-matchup .opponent .ha {
+      color: #888;
+      font-weight: 500;
+    }
+
+    .game-when {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      padding-left: 18px;
+      border-left: 1px solid #e6e6e6;
+      white-space: nowrap;
+    }
+
+    .game-when .meta {
+      margin: 0;
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #333;
+    }
+
+    .game-when .loc {
+      margin: 0;
+      font-weight: 400;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      font-size: 0.78rem;
+      color: #666;
+    }
+
+    .tv-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 0.72rem;
+      color: #fff;
+      background: #111;
+      padding: 5px 11px;
+      border-radius: 6px;
+      white-space: nowrap;
+    }
+
+    .tv-chip .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #cc0000;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="preview-note">
+    <strong>Preview of the “Game Schedules v2” Discourse theme component.</strong>
+    This page reproduces <code>desktop/header.html</code>, <code>desktop/desktop.scss</code>,
+    and the render logic from <code>javascripts/discourse/api-initializers/theme-initializer.gjs</code>.
+    It attempts to fetch the live schedule JSON from S3; if that is blocked (e.g. opened via
+    <code>file://</code>), it falls back to embedded sample data. A box only appears when a sport
+    has a game on or after today (<span id="today-est"></span>, America/New_York).
+  </div>
+
+  <!-- ===== copy of desktop/header.html ===== -->
+  <div id="game-schedules">
+    <div id="football" class="sport-schedule-box"></div>
+    <div id="mens-basketball" class="sport-schedule-box"></div>
+    <div id="womens-basketball" class="sport-schedule-box"></div>
+    <div id="baseball" class="sport-schedule-box"></div>
+  </div>
+
+  <div class="preview-source" id="data-source"></div>
+
+  <script>
+    // ===================================================================
+    // Faithful port of theme-initializer.gjs (plain-JS, no Discourse API).
+    // ===================================================================
+    const schedulesToLoad = [
+      {
+        divId: 'football',
+        title: 'Football',
+        url: 'https://pfn-static.s3.us-east-2.amazonaws.com/schedule-football.json',
+        iconUrl: 'https://pfn-static.s3.us-east-2.amazonaws.com/images/football-game-schedule-icon.png'
+      },
+      {
+        divId: 'mens-basketball',
+        title: "Men's Basketball",
+        url: 'https://pfn-static.s3.us-east-2.amazonaws.com/schedule-mens-basketball.json',
+        iconUrl: 'https://pfn-static.s3.us-east-2.amazonaws.com/images/mens-basketball-game-schedule-icon.png'
+      },
+      {
+        divId: 'womens-basketball',
+        title: "Women's Basketball",
+        url: 'https://pfn-static.s3.us-east-2.amazonaws.com/schedule-womens-basketball.json',
+        iconUrl: 'https://pfn-static.s3.us-east-2.amazonaws.com/images/womens-basketball-game-schedule-icon.png'
+      },
+      {
+        divId: 'baseball',
+        title: 'Baseball',
+        url: 'https://pfn-static.s3.us-east-2.amazonaws.com/schedule-baseball.json',
+        iconUrl: 'https://pfn-static.s3.us-east-2.amazonaws.com/images/baseball-game-schedule-icon.png'
+      }
+    ];
+
+    // Embedded fallback data, used only when the live fetch fails (file:// / CORS / offline).
+    const sampleData = {
+      football: [
+        { opponent: "Virginia", date: "2026-08-29", time: "3:30 PM", home: false, location: "Charlottesville", tv: "ESPN" },
+        { opponent: "Richmond", date: "2026-09-11", time: "7:00 PM", home: true, location: "Carter-Finley Stadium", tv: "ESPNU" }
+      ],
+      'mens-basketball': [
+        { opponent: "Detroit Mercy", date: "2026-11-06", time: "8:00 PM", home: true, location: "Lenovo Center", tv: null }
+      ],
+      'womens-basketball': [
+        { opponent: "UNC Greensboro", date: "2026-11-08", time: "2:00 PM", home: true, location: "Reynolds Coliseum", tv: null }
+      ],
+      baseball: [
+        { opponent: "Bryant", date: "2027-02-12", time: "TBD", home: true, location: "Doak Field", tv: null }
+      ]
+    };
+
+    const getTodayInEST = () => {
+      const now = new Date();
+      const formatter = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/New_York',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      });
+      return formatter.format(now);
+    };
+
+    let usedFallback = false;
+
+    const processSchedule = async (config) => {
+      let games;
+      try {
+        const response = await fetch(config.url);
+        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+        games = await response.json();
+      } catch (error) {
+        console.warn(`Live fetch failed for ${config.title}, using sample data:`, error);
+        usedFallback = true;
+        games = sampleData[config.divId] || [];
+      }
+
+      const todayESTString = getTodayInEST();
+      games.sort((a, b) => a.date.localeCompare(b.date));
+      const upcomingGame = games.find(game => game.date >= todayESTString);
+
+      if (upcomingGame) {
+        const targetDiv = document.getElementById(config.divId);
+        const gameDateParts = upcomingGame.date.split('-');
+        const gameDate = new Date(gameDateParts[0], gameDateParts[1] - 1, gameDateParts[2]);
+        const formattedDate = gameDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+        const dateTimeString = upcomingGame.time === 'TBD'
+          ? formattedDate
+          : `${formattedDate} &middot; ${upcomingGame.time}`;
+
+        // Home/away prefix only when the data explicitly says so.
+        const homeAway = typeof upcomingGame.home === 'boolean'
+          ? `<span class="ha">${upcomingGame.home ? 'vs' : '@'}</span> `
+          : '';
+
+        // TV network chip only when a network is set (tv can be null).
+        const tvChip = upcomingGame.tv
+          ? `<span class="tv-chip"><span class="dot"></span>${upcomingGame.tv}</span>`
+          : '';
+
+        targetDiv.innerHTML = `
+          <div class="game-cluster">
+            <img src="${config.iconUrl}" alt="${config.title} icon" class="sport-icon">
+            <div class="game-matchup">
+              <p class="kicker">Next &middot; ${config.title}</p>
+              <p class="opponent">${homeAway}${upcomingGame.opponent}</p>
+            </div>
+          </div>
+          <div class="game-when">
+            <p class="meta">${dateTimeString}</p>
+            <p class="loc">${upcomingGame.location}</p>
+          </div>
+          ${tvChip}
+        `;
+        targetDiv.style.display = 'flex';
+      }
+    };
+
+    document.getElementById('today-est').textContent = getTodayInEST();
+
+    Promise.all(schedulesToLoad.map(config => processSchedule(config))).then(() => {
+      document.getElementById('data-source').textContent = usedFallback
+        ? 'Rendered from embedded sample data (live S3 fetch was blocked).'
+        : 'Rendered from live S3 schedule data.';
+    });
+  </script>
+</body>
+</html>

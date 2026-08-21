@@ -68,19 +68,35 @@ export default apiInitializer((api) => {
             const gameDateParts = upcomingGame.date.split('-'); // -> ["2025", "09", "11"]
             // new Date(year, monthIndex, day) is the most reliable constructor.
             const gameDate = new Date(gameDateParts[0], gameDateParts[1] - 1, gameDateParts[2]);
-            const formattedDate = gameDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            const formattedDate = gameDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
             const dateTimeString = upcomingGame.time === 'TBD'
               ? formattedDate
-              : `${formattedDate}, ${upcomingGame.time}`;
+              : `${formattedDate} &middot; ${upcomingGame.time}`;
+
+            // Home/away prefix only when the data explicitly says so.
+            const homeAway = typeof upcomingGame.home === 'boolean'
+              ? `<span class="ha">${upcomingGame.home ? 'vs' : '@'}</span> `
+              : '';
+
+            // TV network chip only when a network is set (tv can be null).
+            const tvChip = upcomingGame.tv
+              ? `<span class="tv-chip"><span class="dot"></span>${upcomingGame.tv}</span>`
+              : '';
 
             targetDiv.innerHTML = `
-                            <img src="${config.iconUrl}" alt="${config.title} icon" class="sport-icon">
-                            <div class="game-details">
-                                <p><strong>Opponent:</strong> ${upcomingGame.opponent}</p>
-                                <p><strong>Date:</strong> ${dateTimeString}</p>
-                                <p><strong>Location:</strong> ${upcomingGame.location}</p>
+                            <div class="game-cluster">
+                                <img src="${config.iconUrl}" alt="${config.title} icon" class="sport-icon">
+                                <div class="game-matchup">
+                                    <p class="kicker">Next &middot; ${config.title}</p>
+                                    <p class="opponent">${homeAway}${upcomingGame.opponent}</p>
+                                </div>
                             </div>
+                            <div class="game-when">
+                                <p class="meta">${dateTimeString}</p>
+                                <p class="loc">${upcomingGame.location}</p>
+                            </div>
+                            ${tvChip}
                         `;
 
             targetDiv.style.display = 'flex';
