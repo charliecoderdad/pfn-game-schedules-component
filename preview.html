@@ -346,7 +346,9 @@
     };
 
     // ===== Kickoff Countdown pill (mockup take #7) =====
-    const KICKOFF_TARGET = new Date('August 29, 2026 00:00:01');
+    // NC State @ Virginia, Aug 29 2026, 3:30 PM ET (ESPN). Explicit -04:00
+    // offset pins the target to Eastern (EDT), independent of viewer timezone.
+    const KICKOFF_TARGET = new Date('2026-08-29T15:30:00-04:00');
     const COUNTDOWN_ICON = 'https://pfn-static.s3.us-east-2.amazonaws.com/images/kickoff-countdown-icon.png';
     const pad2 = (n) => (n < 10 ? '0' : '') + n;
 

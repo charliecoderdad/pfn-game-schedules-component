@@ -49,8 +49,11 @@ export default apiInitializer((api) => {
       // Kickoff Countdown pill (mockup take #7). Hard-coded target date —
       // update once a season. The pill only renders while kickoff is in the
       // future, and hides itself the moment the countdown reaches zero.
+      // Kickoff: NC State @ Virginia, Aug 29 2026, 3:30 PM ET (ESPN). The
+      // explicit -04:00 offset pins it to Eastern (EDT) so the countdown is
+      // correct regardless of the viewer's local timezone.
       // ================================================================
-      const KICKOFF_TARGET = new Date('August 29, 2026 00:00:01');
+      const KICKOFF_TARGET = new Date('2026-08-29T15:30:00-04:00');
       const COUNTDOWN_ICON = 'https://pfn-static.s3.us-east-2.amazonaws.com/images/kickoff-countdown-icon.png';
 
       const pad2 = (n) => (n < 10 ? '0' : '') + n;
