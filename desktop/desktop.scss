@@ -1,0 +1,45 @@
+#game-schedules {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      align-items: center;
+      padding: 8px 10px;
+      background-image: linear-gradient(to bottom right, red, black);
+      border-bottom: 1px solid #ddd;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .sport-schedule-box {
+      display: none;
+      align-items: center;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 2px 15px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      flex-grow: 1;
+      flex-basis: 320px;
+      max-width: 450px;
+      justify-content: center;
+    }
+
+    .sport-icon {
+      width: 44px;
+      height: 44px;
+      margin-right: 15px;
+      flex-shrink: 0;
+    }
+
+    .game-details p {
+      margin: 0;
+      font-size: 0.85em;
+      color: #555;
+      white-space: nowrap;
+    }
+
+    .game-details strong {
+      color: #000;
+    }
