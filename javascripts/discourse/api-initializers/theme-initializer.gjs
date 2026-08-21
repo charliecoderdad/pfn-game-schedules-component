@@ -5,25 +5,25 @@ export default apiInitializer((api) => {
         {
           divId: 'football',
           title: 'Football',
-          url: 'https://pfn-static.s3.us-east-2.amazonaws.com/schedule-football.json?v=2025-10-17',
+          url: 'https://pfn-static.s3.us-east-2.amazonaws.com/schedule-football.json',
           iconUrl: 'https://pfn-static.s3.us-east-2.amazonaws.com/images/football-game-schedule-icon.png'
         },
         {
           divId: 'mens-basketball',
           title: 'Men\'s Basketball',
-          url: 'https://pfn-static.s3.us-east-2.amazonaws.com/schedule-mens-basketball.json?v=2025-10-17',
+          url: 'https://pfn-static.s3.us-east-2.amazonaws.com/schedule-mens-basketball.json',
           iconUrl: 'https://pfn-static.s3.us-east-2.amazonaws.com/images/mens-basketball-game-schedule-icon.png'
         },
         {
           divId: 'womens-basketball',
           title: 'Women\'s Basketball',
-          url: 'https://pfn-static.s3.us-east-2.amazonaws.com/schedule-womens-basketball.json?v=2025-10-17',
+          url: 'https://pfn-static.s3.us-east-2.amazonaws.com/schedule-womens-basketball.json',
           iconUrl: 'https://pfn-static.s3.us-east-2.amazonaws.com/images/womens-basketball-game-schedule-icon.png'
         },
         {
           divId: 'baseball',
           title: 'Baseball',
-          url: 'https://pfn-static.s3.us-east-2.amazonaws.com/schedule-baseball.json?v=2025-10-17',
+          url: 'https://pfn-static.s3.us-east-2.amazonaws.com/schedule-baseball.json',
           iconUrl: 'https://pfn-static.s3.us-east-2.amazonaws.com/images/baseball-game-schedule-icon.png'
         }
       ];

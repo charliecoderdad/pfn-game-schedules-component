@@ -33,8 +33,11 @@ No zip juggling and no duplicate components — git is the source of truth.
 
 ## Notes
 
-- The JSON URLs in `theme-initializer.gjs` carry a `?v=YYYY-MM-DD` cache-bust. Bump it when
-  you want every user's browser to re-fetch the schedule JSON immediately.
+- The JSON URLs in `theme-initializer.gjs` are plain (no `?v=` cache-bust). Whether a user's
+  browser re-fetches immediately after you update the S3 JSON depends on the S3 object's
+  `Cache-Control` headers, not on the component. If stale schedules become a problem, set a
+  short `Cache-Control` (e.g. `max-age=300`) on the S3 objects, or re-introduce a `?v=` param
+  that you bump on each update.
 - The schedule *data* (the JSON files themselves) lives in the `pfn-static` S3 bucket and in
   the main [`pfn`](https://github.com/charliecoderdad/pfn) repo's `banners/game-schedules-banner/`
   staging copies — not here. This repo is only the display component.
