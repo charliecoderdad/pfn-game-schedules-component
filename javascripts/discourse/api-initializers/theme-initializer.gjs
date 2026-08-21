@@ -45,6 +45,57 @@ export default apiInitializer((api) => {
         return formatter.format(now);
       };
 
+      // ================================================================
+      // Kickoff Countdown pill (mockup take #7). Hard-coded target date —
+      // update once a season. The pill only renders while kickoff is in the
+      // future, and hides itself the moment the countdown reaches zero.
+      // ================================================================
+      const KICKOFF_TARGET = new Date('August 29, 2026 00:00:01');
+      const COUNTDOWN_ICON = 'https://pfn-static.s3.us-east-2.amazonaws.com/images/kickoff-countdown-icon.png';
+
+      const pad2 = (n) => (n < 10 ? '0' : '') + n;
+
+      const renderCountdown = () => {
+        const box = document.getElementById('kickoff-countdown');
+        if (!box) return;
+
+        // Already past kickoff? Leave it hidden entirely.
+        if (KICKOFF_TARGET.getTime() - Date.now() <= 0) return;
+
+        box.innerHTML = `
+                        <img src="${COUNTDOWN_ICON}" alt="Kickoff Countdown" class="sport-icon">
+                        <div class="cdlabel"><span class="l1">Kickoff</span><span class="l2">Countdown</span></div>
+                        <div class="cd-units">
+                            <div class="cd-unit cd-days"><span class="num cd-d">00</span><span class="lab">Days</span></div>
+                            <div class="cd-unit"><span class="num cd-h">00</span><span class="lab">Hrs</span></div>
+                            <div class="cd-unit"><span class="num cd-m">00</span><span class="lab">Min</span></div>
+                            <div class="cd-unit"><span class="num cd-s">00</span><span class="lab">Sec</span></div>
+                        </div>
+                    `;
+        box.style.display = 'flex';
+
+        const dEl = box.querySelector('.cd-d');
+        const hEl = box.querySelector('.cd-h');
+        const mEl = box.querySelector('.cd-m');
+        const sEl = box.querySelector('.cd-s');
+
+        const tick = () => {
+          let secondsLeft = (KICKOFF_TARGET.getTime() - Date.now()) / 1000;
+          if (secondsLeft <= 0) {
+            box.style.display = 'none';
+            return false; // stop ticking
+          }
+          dEl.textContent = pad2(parseInt(secondsLeft / 86400)); secondsLeft %= 86400;
+          hEl.textContent = pad2(parseInt(secondsLeft / 3600));  secondsLeft %= 3600;
+          mEl.textContent = pad2(parseInt(secondsLeft / 60));
+          sEl.textContent = pad2(parseInt(secondsLeft % 60));
+          return true;
+        };
+
+        tick();
+        const timer = setInterval(() => { if (!tick()) clearInterval(timer); }, 1000);
+      };
+
       const processSchedule = async (config) => {
         try {
           const response = await fetch(config.url);
@@ -105,5 +156,6 @@ export default apiInitializer((api) => {
           console.error(`Could not load schedule for ${config.title}:`, error);
         }
       };
+      renderCountdown();
       Promise.all(schedulesToLoad.map(config => processSchedule(config)));
 });

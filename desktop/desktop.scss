@@ -130,3 +130,74 @@
       border-radius: 50%;
       background: #cc0000;
     }
+
+    /* ===================================================================
+       Kickoff Countdown pill — always the first box when visible.
+       Auto-hidden by the initializer once kickoff has passed.
+       =================================================================== */
+    .countdown-box {
+      gap: 16px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .cdlabel {
+      display: flex;
+      flex-direction: column;
+      line-height: 0.94;
+      white-space: nowrap;
+    }
+
+    .cdlabel .l1,
+    .cdlabel .l2 {
+      font-family: "Oswald", sans-serif;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 1.18rem;
+    }
+
+    .cdlabel .l1 { color: #cc0000; }
+    .cdlabel .l2 { color: #111; }
+
+    .cd-units {
+      display: flex;
+      align-items: stretch;
+      gap: 8px;
+    }
+
+    .cd-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #111;
+      color: #fff;
+      border-radius: 8px;
+      padding: 5px 11px;
+      min-width: 46px;
+    }
+
+    .cd-unit .num {
+      font-family: "Oswald", sans-serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      line-height: 1;
+    }
+
+    .cd-unit .lab {
+      font-size: 0.46rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #bbb;
+      margin-top: 2px;
+    }
+
+    /* Days emphasized: gradient red, larger number (mockup take #7).
+       Kept within the 46px icon height so the pill matches the game pills. */
+    .cd-unit.cd-days {
+      background: linear-gradient(160deg, #e21414, #8f0000);
+      padding: 5px 14px;
+    }
+
+    .cd-unit.cd-days .num { font-size: 1.5rem; }
+    .cd-unit.cd-days .lab { color: #ffd6d6; }

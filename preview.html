@@ -165,6 +165,72 @@
       border-radius: 50%;
       background: #cc0000;
     }
+
+    /* ===== Kickoff Countdown pill (mockup take #7) ===== */
+    .countdown-box {
+      gap: 16px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .cdlabel {
+      display: flex;
+      flex-direction: column;
+      line-height: 0.94;
+      white-space: nowrap;
+    }
+
+    .cdlabel .l1,
+    .cdlabel .l2 {
+      font-family: "Oswald", sans-serif;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-size: 1.18rem;
+    }
+
+    .cdlabel .l1 { color: #cc0000; }
+    .cdlabel .l2 { color: #111; }
+
+    .cd-units {
+      display: flex;
+      align-items: stretch;
+      gap: 8px;
+    }
+
+    .cd-unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #111;
+      color: #fff;
+      border-radius: 8px;
+      padding: 5px 11px;
+      min-width: 46px;
+    }
+
+    .cd-unit .num {
+      font-family: "Oswald", sans-serif;
+      font-weight: 700;
+      font-size: 1.15rem;
+      line-height: 1;
+    }
+
+    .cd-unit .lab {
+      font-size: 0.46rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #bbb;
+      margin-top: 2px;
+    }
+
+    .cd-unit.cd-days {
+      background: linear-gradient(160deg, #e21414, #8f0000);
+      padding: 5px 14px;
+    }
+
+    .cd-unit.cd-days .num { font-size: 1.5rem; }
+    .cd-unit.cd-days .lab { color: #ffd6d6; }
   </style>
 </head>
 <body>
@@ -180,6 +246,7 @@
 
   <!-- ===== copy of desktop/header.html ===== -->
   <div id="game-schedules">
+    <div id="kickoff-countdown" class="sport-schedule-box countdown-box"></div>
     <div id="football" class="sport-schedule-box"></div>
     <div id="mens-basketball" class="sport-schedule-box"></div>
     <div id="womens-basketball" class="sport-schedule-box"></div>
@@ -247,6 +314,46 @@
       return formatter.format(now);
     };
 
+    // ===== Kickoff Countdown pill (mockup take #7) =====
+    const KICKOFF_TARGET = new Date('August 29, 2026 00:00:01');
+    const COUNTDOWN_ICON = 'https://pfn-static.s3.us-east-2.amazonaws.com/images/kickoff-countdown-icon.png';
+    const pad2 = (n) => (n < 10 ? '0' : '') + n;
+
+    const renderCountdown = () => {
+      const box = document.getElementById('kickoff-countdown');
+      if (!box) return;
+      if (KICKOFF_TARGET.getTime() - Date.now() <= 0) return;
+
+      box.innerHTML = `
+        <img src="${COUNTDOWN_ICON}" alt="Kickoff Countdown" class="sport-icon">
+        <div class="cdlabel"><span class="l1">Kickoff</span><span class="l2">Countdown</span></div>
+        <div class="cd-units">
+          <div class="cd-unit cd-days"><span class="num cd-d">00</span><span class="lab">Days</span></div>
+          <div class="cd-unit"><span class="num cd-h">00</span><span class="lab">Hrs</span></div>
+          <div class="cd-unit"><span class="num cd-m">00</span><span class="lab">Min</span></div>
+          <div class="cd-unit"><span class="num cd-s">00</span><span class="lab">Sec</span></div>
+        </div>
+      `;
+      box.style.display = 'flex';
+
+      const dEl = box.querySelector('.cd-d');
+      const hEl = box.querySelector('.cd-h');
+      const mEl = box.querySelector('.cd-m');
+      const sEl = box.querySelector('.cd-s');
+
+      const tick = () => {
+        let secondsLeft = (KICKOFF_TARGET.getTime() - Date.now()) / 1000;
+        if (secondsLeft <= 0) { box.style.display = 'none'; return false; }
+        dEl.textContent = pad2(parseInt(secondsLeft / 86400)); secondsLeft %= 86400;
+        hEl.textContent = pad2(parseInt(secondsLeft / 3600));  secondsLeft %= 3600;
+        mEl.textContent = pad2(parseInt(secondsLeft / 60));
+        sEl.textContent = pad2(parseInt(secondsLeft % 60));
+        return true;
+      };
+      tick();
+      const timer = setInterval(() => { if (!tick()) clearInterval(timer); }, 1000);
+    };
+
     let usedFallback = false;
 
     const processSchedule = async (config) => {
@@ -304,6 +411,8 @@
     };
 
     document.getElementById('today-est').textContent = getTodayInEST();
+
+    renderCountdown();
 
     Promise.all(schedulesToLoad.map(config => processSchedule(config))).then(() => {
       document.getElementById('data-source').textContent = usedFallback
