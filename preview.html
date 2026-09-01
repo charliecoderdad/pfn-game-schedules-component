@@ -187,7 +187,7 @@
       background: #cc0000;
     }
 
-    /* ===== Kickoff Countdown pill (mockup take #7) ===== */
+    /* ===== Tip Off Countdown pill (mockup take #7) ===== */
     .countdown-box {
       gap: 16px;
       font-variant-numeric: tabular-nums;
@@ -277,7 +277,7 @@
 
   <!-- ===== copy of desktop/header.html ===== -->
   <div id="game-schedules">
-    <div id="kickoff-countdown" class="sport-schedule-box countdown-box"></div>
+    <div id="tipoff-countdown" class="sport-schedule-box countdown-box"></div>
     <div id="football" class="sport-schedule-box"></div>
     <div id="mens-basketball" class="sport-schedule-box"></div>
     <div id="womens-basketball" class="sport-schedule-box"></div>
@@ -345,21 +345,22 @@
       return formatter.format(now);
     };
 
-    // ===== Kickoff Countdown pill (mockup take #7) =====
-    // NC State @ Virginia, Aug 29 2026, 3:30 PM ET (ESPN). Explicit -04:00
-    // offset pins the target to Eastern (EDT), independent of viewer timezone.
-    const KICKOFF_TARGET = new Date('2026-08-29T15:30:00-04:00');
-    const COUNTDOWN_ICON = 'https://pfn-static.s3.us-east-2.amazonaws.com/images/kickoff-countdown-icon.png';
+    // ===== Tip Off Countdown pill (mockup take #7) =====
+    // NC State vs Detroit Mercy, Nov 6 2026, 8:00 PM ET (Lenovo Center).
+    // Explicit -05:00 offset pins the target to Eastern (EST), independent
+    // of viewer timezone.
+    const TIPOFF_TARGET = new Date('2026-11-06T20:00:00-05:00');
+    const COUNTDOWN_ICON = 'https://pfn-static.s3.us-east-2.amazonaws.com/images/mens-basketball-game-schedule-icon.png';
     const pad2 = (n) => (n < 10 ? '0' : '') + n;
 
     const renderCountdown = () => {
-      const box = document.getElementById('kickoff-countdown');
+      const box = document.getElementById('tipoff-countdown');
       if (!box) return;
-      if (KICKOFF_TARGET.getTime() - Date.now() <= 0) return;
+      if (TIPOFF_TARGET.getTime() - Date.now() <= 0) return;
 
       box.innerHTML = `
-        <img src="${COUNTDOWN_ICON}" alt="Kickoff Countdown" class="sport-icon">
-        <div class="cdlabel"><span class="l1">Kickoff</span><span class="l2">Countdown</span></div>
+        <img src="${COUNTDOWN_ICON}" alt="Tip Off Countdown" class="sport-icon">
+        <div class="cdlabel"><span class="l1">Tip Off</span><span class="l2">Countdown</span></div>
         <div class="cd-units">
           <div class="cd-unit cd-days"><span class="num cd-d">00</span><span class="lab">Days</span></div>
           <div class="cd-unit"><span class="num cd-h">00</span><span class="lab">Hrs</span></div>
@@ -375,7 +376,7 @@
       const sEl = box.querySelector('.cd-s');
 
       const tick = () => {
-        let secondsLeft = (KICKOFF_TARGET.getTime() - Date.now()) / 1000;
+        let secondsLeft = (TIPOFF_TARGET.getTime() - Date.now()) / 1000;
         if (secondsLeft <= 0) { box.style.display = 'none'; return false; }
         dEl.textContent = pad2(parseInt(secondsLeft / 86400)); secondsLeft %= 86400;
         hEl.textContent = pad2(parseInt(secondsLeft / 3600));  secondsLeft %= 3600;

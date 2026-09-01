@@ -46,22 +46,22 @@ export default apiInitializer((api) => {
       };
 
       // ================================================================
-      // Kickoff Countdown pill (mockup take #7). Hard-coded target date —
-      // update once a season. The pill only renders while kickoff is in the
+      // Tip Off Countdown pill (mockup take #7). Hard-coded target date —
+      // update once a season. The pill only renders while tip-off is in the
       // future, and hides itself the moment the countdown reaches zero.
-      // Kickoff: NC State @ Virginia, Aug 29 2026, 3:30 PM ET (ESPN). The
-      // explicit -04:00 offset pins it to Eastern (EDT) so the countdown is
-      // correct regardless of the viewer's local timezone.
+      // Tip-off: NC State vs Detroit Mercy, Nov 6 2026, 8:00 PM ET (Lenovo
+      // Center). The explicit -05:00 offset pins it to Eastern (EST) so the
+      // countdown is correct regardless of the viewer's local timezone.
       // ================================================================
-      const KICKOFF_TARGET = new Date('2026-08-29T15:30:00-04:00');
-      const COUNTDOWN_ICON = 'https://pfn-static.s3.us-east-2.amazonaws.com/images/kickoff-countdown-icon.png';
+      const TIPOFF_TARGET = new Date('2026-11-06T20:00:00-05:00');
+      const COUNTDOWN_ICON = 'https://pfn-static.s3.us-east-2.amazonaws.com/images/mens-basketball-game-schedule-icon.png';
 
       const pad2 = (n) => (n < 10 ? '0' : '') + n;
 
       // Static skeleton for the countdown pill; numbers are filled by updateCountdown().
       const COUNTDOWN_SKELETON = `
-                        <img src="${COUNTDOWN_ICON}" alt="Kickoff Countdown" class="sport-icon">
-                        <div class="cdlabel"><span class="l1">Kickoff</span><span class="l2">Countdown</span></div>
+                        <img src="${COUNTDOWN_ICON}" alt="Tip Off Countdown" class="sport-icon">
+                        <div class="cdlabel"><span class="l1">Tip Off</span><span class="l2">Countdown</span></div>
                         <div class="cd-units">
                             <div class="cd-unit cd-days"><span class="num cd-d">00</span><span class="lab">Days</span></div>
                             <div class="cd-unit"><span class="num cd-h">00</span><span class="lab">Hrs</span></div>
@@ -120,8 +120,8 @@ export default apiInitializer((api) => {
       // fetch` and hit a null (already-replaced) node.
       const render = () => {
         // Countdown pill.
-        const cdBox = document.getElementById('kickoff-countdown');
-        if (cdBox && KICKOFF_TARGET.getTime() - Date.now() > 0) {
+        const cdBox = document.getElementById('tipoff-countdown');
+        if (cdBox && TIPOFF_TARGET.getTime() - Date.now() > 0) {
           if (cdBox.dataset.rendered !== '1') {
             cdBox.innerHTML = COUNTDOWN_SKELETON;
             cdBox.style.display = 'flex';
@@ -143,10 +143,10 @@ export default apiInitializer((api) => {
 
       // Update the live countdown numbers on whatever node is currently mounted.
       const updateCountdown = () => {
-        const box = document.getElementById('kickoff-countdown');
+        const box = document.getElementById('tipoff-countdown');
         if (!box) return;
 
-        let secondsLeft = (KICKOFF_TARGET.getTime() - Date.now()) / 1000;
+        let secondsLeft = (TIPOFF_TARGET.getTime() - Date.now()) / 1000;
         if (secondsLeft <= 0) {
           box.style.display = 'none';
           return;
