@@ -1,13 +1,28 @@
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Roboto+Condensed:wght@400;500;700&display=swap');
 
-#game-schedules {
+    /* ===================================================================
+       One knob scales the whole banner.
+
+       Every size below is expressed in `em` relative to the #game-schedules
+       font-size, so the clamp() on that one property scales icons, text,
+       padding and gaps together. At >= ~1250px viewport the base is 16px and
+       the banner renders exactly as designed; below that it shrinks
+       proportionally so the countdown pill and the next-game pill stay on a
+       single line instead of wrapping/stacking. Content and chrome shrink at
+       the same rate, so the pair keeps fitting all the way down.
+
+       flex-wrap: wrap is kept as a safety net (e.g. three-plus pills in
+       basketball/baseball season) — pills wrap intact rather than overflow.
+       =================================================================== */
+    #game-schedules {
       font-family: "Roboto Condensed", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: clamp(10px, 1.28vw, 16px);
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 20px;
+      gap: 1.25em;
       align-items: center;
-      padding: 12px 16px;
+      padding: 0.75em 1em;
       background-image: linear-gradient(to bottom right, red, black);
       border-bottom: 1px solid #ddd;
       width: 100%;
@@ -22,20 +37,21 @@
     .sport-schedule-box {
       display: none;
       align-items: center;
-      gap: 16px;
+      gap: 1em;
       background-color: #fff;
       border: 1px solid #ccc;
       border-radius: 999px;
-      padding: 8px 24px;
+      padding: 0.5em 1.5em;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
       flex: 0 0 auto;
       max-width: 100%;
+      min-width: 0;
       justify-content: flex-start;
     }
 
     .sport-icon {
-      width: 46px;
-      height: 46px;
+      width: 2.875em;
+      height: 2.875em;
       flex-shrink: 0;
       object-fit: contain;
     }
@@ -44,7 +60,7 @@
     .game-cluster {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 0.875em;
       min-width: 0;
     }
 
@@ -60,7 +76,7 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.13em;
-      font-size: 0.6rem;
+      font-size: 0.6em;
       color: #cc0000;
       white-space: nowrap;
     }
@@ -71,7 +87,7 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.02em;
-      font-size: 1.35rem;
+      font-size: 1.35em;
       line-height: 1.15;
       color: #000;
       white-space: nowrap;
@@ -89,15 +105,16 @@
       display: flex;
       flex-direction: column;
       gap: 1px;
-      padding-left: 18px;
+      padding-left: 1.125em;
       border-left: 1px solid #e6e6e6;
       white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .game-when .meta {
       margin: 0;
       font-weight: 700;
-      font-size: 0.9rem;
+      font-size: 0.9em;
       color: #333;
     }
 
@@ -106,7 +123,7 @@
       font-weight: 400;
       text-transform: uppercase;
       letter-spacing: 0.03em;
-      font-size: 0.78rem;
+      font-size: 0.78em;
       color: #666;
     }
 
@@ -114,24 +131,25 @@
     .tv-chip {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 0.52em;
       flex-shrink: 0;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      font-size: 0.72rem;
+      font-size: 0.72em;
       color: #fff;
       background: #111;
-      padding: 5px 11px;
-      border-radius: 6px;
+      padding: 0.43em 0.95em;
+      border-radius: 0.52em;
       white-space: nowrap;
     }
 
     .tv-chip .dot {
-      width: 6px;
-      height: 6px;
+      width: 0.52em;
+      height: 0.52em;
       border-radius: 50%;
       background: #cc0000;
+      flex-shrink: 0;
     }
 
     /* ===================================================================
@@ -139,7 +157,7 @@
        Auto-hidden by the initializer once tip-off has passed.
        =================================================================== */
     .countdown-box {
-      gap: 16px;
+      gap: 1em;
       font-variant-numeric: tabular-nums;
       flex-wrap: wrap;
       justify-content: center;
@@ -158,7 +176,7 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      font-size: 1.04rem;
+      font-size: 1.04em;
     }
 
     .cdlabel .l1 { color: #cc0000; }
@@ -169,7 +187,7 @@
       flex-wrap: wrap;
       justify-content: center;
       align-items: stretch;
-      gap: 8px;
+      gap: 0.5em;
     }
 
     .cd-unit {
@@ -179,32 +197,33 @@
       justify-content: center;
       background: #111;
       color: #fff;
-      border-radius: 8px;
-      padding: 5px 11px;
-      min-width: 46px;
+      border-radius: 0.5em;
+      padding: 0.3125em 0.6875em;
+      min-width: 2.875em;
+      box-sizing: border-box;
     }
 
     .cd-unit .num {
       font-family: "Oswald", sans-serif;
       font-weight: 700;
-      font-size: 1.02rem;
+      font-size: 1.02em;
       line-height: 1;
     }
 
     .cd-unit .lab {
-      font-size: 0.46rem;
+      font-size: 0.46em;
       text-transform: uppercase;
       letter-spacing: 0.1em;
       color: #bbb;
-      margin-top: 2px;
+      margin-top: 0.27em;
     }
 
     /* Days emphasized: gradient red, larger number (mockup take #7).
        Kept within the 46px icon height so the pill matches the game pills. */
     .cd-unit.cd-days {
       background: linear-gradient(160deg, #e21414, #8f0000);
-      padding: 5px 14px;
+      padding: 0.3125em 0.875em;
     }
 
-    .cd-unit.cd-days .num { font-size: 1.28rem; }
+    .cd-unit.cd-days .num { font-size: 1.28em; }
     .cd-unit.cd-days .lab { color: #ffd6d6; }
