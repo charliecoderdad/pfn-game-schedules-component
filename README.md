@@ -38,6 +38,10 @@ No zip juggling and no duplicate components — git is the source of truth.
   `Cache-Control` headers, not on the component. If stale schedules become a problem, set a
   short `Cache-Control` (e.g. `max-age=300`) on the S3 objects, or re-introduce a `?v=` param
   that you bump on each update.
-- The schedule *data* (the JSON files themselves) lives in the `pfn-static` S3 bucket and in
-  the main [`pfn`](https://github.com/charliecoderdad/pfn) repo's `banners/game-schedules-banner/`
-  staging copies — not here. This repo is only the display component.
+- The schedule *data* (the JSON files themselves) lives in the `pfn-static` S3 bucket, which
+  is the source of truth. This repo is primarily the display component, but it also carries the
+  `update-football-schedule` Claude skill (`.claude/skills/`) and a git-tracked staging copy of
+  the football schedule at `data/schedule-football.json` — the skill overwrites that copy each
+  time it rebuilds the slate, so git keeps a diff record of what changed before it's pushed to S3.
+  The other sports' JSON staging copies still live in the main
+  [`pfn`](https://github.com/charliecoderdad/pfn) repo's `banners/` area.

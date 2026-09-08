@@ -1,0 +1,98 @@
+[
+  {
+    "opponent": "Virginia",
+    "date": "2026-08-29",
+    "time": "3:30 PM",
+    "home": false,
+    "location": "Charlottesville",
+    "tv": "ESPN"
+  },
+  {
+    "opponent": "Richmond",
+    "date": "2026-09-11",
+    "time": "7:00 PM",
+    "home": true,
+    "location": "Carter-Finley Stadium",
+    "tv": "ESPNU"
+  },
+  {
+    "opponent": "Vanderbilt",
+    "date": "2026-09-19",
+    "time": "12:45 PM",
+    "home": false,
+    "location": "Nashville",
+    "tv": "SEC Network"
+  },
+  {
+    "opponent": "Appalachian State",
+    "date": "2026-09-26",
+    "time": "TBD",
+    "home": true,
+    "location": "Carter-Finley Stadium",
+    "tv": null
+  },
+  {
+    "opponent": "Louisville",
+    "date": "2026-10-03",
+    "time": "TBD",
+    "home": true,
+    "location": "Carter-Finley Stadium",
+    "tv": null
+  },
+  {
+    "opponent": "Wake Forest University",
+    "date": "2026-10-10",
+    "time": "TBD",
+    "home": true,
+    "location": "Carter-Finley Stadium",
+    "tv": null
+  },
+  {
+    "opponent": "Stanford",
+    "date": "2026-10-23",
+    "time": "10:30 PM",
+    "home": false,
+    "location": "Stanford",
+    "tv": "ESPN"
+  },
+  {
+    "opponent": "California",
+    "date": "2026-10-31",
+    "time": "TBD",
+    "home": true,
+    "location": "Carter-Finley Stadium",
+    "tv": null
+  },
+  {
+    "opponent": "Duke",
+    "date": "2026-11-07",
+    "time": "TBD",
+    "home": true,
+    "location": "Carter-Finley Stadium",
+    "tv": null
+  },
+  {
+    "opponent": "Syracuse",
+    "date": "2026-11-14",
+    "time": "TBD",
+    "home": true,
+    "location": "Carter-Finley Stadium",
+    "tv": null
+  },
+  {
+    "opponent": "Florida State",
+    "date": "2026-11-21",
+    "time": "TBD",
+    "home": false,
+    "location": "Tallahassee",
+    "tv": null
+  },
+  {
+    "opponent": "UNC",
+    "date": "2026-11-28",
+    "time": "TBD",
+    "home": false,
+    "location": "Chapel Hill",
+    "tv": null
+  }
+]
