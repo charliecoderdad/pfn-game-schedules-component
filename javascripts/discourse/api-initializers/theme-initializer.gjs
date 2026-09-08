@@ -49,11 +49,11 @@ export default apiInitializer((api) => {
       // Tip Off Countdown pill (mockup take #7). Hard-coded target date —
       // update once a season. The pill only renders while tip-off is in the
       // future, and hides itself the moment the countdown reaches zero.
-      // Tip-off: NC State vs Detroit Mercy, Nov 6 2026, 8:00 PM ET (Lenovo
-      // Center). The explicit -05:00 offset pins it to Eastern (EST) so the
-      // countdown is correct regardless of the viewer's local timezone.
+      // Tip-off: Nov 19 2026, 6:00 PM ET. The explicit -05:00 offset pins it
+      // to Eastern (EST) so the countdown is correct regardless of the
+      // viewer's local timezone.
       // ================================================================
-      const TIPOFF_TARGET = new Date('2026-11-06T20:00:00-05:00');
+      const TIPOFF_TARGET = new Date('2026-11-19T18:00:00-05:00');
       const COUNTDOWN_ICON = 'https://pfn-static.s3.us-east-2.amazonaws.com/images/mens-basketball-game-schedule-icon.png';
 
       const pad2 = (n) => (n < 10 ? '0' : '') + n;
