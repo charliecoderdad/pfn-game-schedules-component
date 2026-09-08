@@ -31,6 +31,22 @@ Then add it as a component to the active theme.
 
 No zip juggling and no duplicate components — git is the source of truth.
 
+## Sizing / auto-fit
+
+Every size in `desktop.scss` is an `em` off one property — `#game-schedules { font-size }` —
+so that single value scales the entire banner (icons, text, padding, gaps) together.
+
+The initializer measures the visible pills against the width the banner actually has and
+sets that font-size inline, so the row grows to use the sides instead of leaving dead space,
+and shrinks rather than stacking when space runs short. Knobs live at the top of the
+auto-fit block in `theme-initializer.gjs`:
+
+- `MAX_BASE_PX` (24) — how large the banner may grow on a wide monitor (16 = the design size).
+- `MIN_BASE_PX` (10) — floor; below this the pills wrap to a second line instead of shrinking further.
+- The visible side margin is the `2.25%` horizontal padding on `#game-schedules`.
+
+The `clamp()` on that same property is the no-JS fallback.
+
 ## Notes
 
 - The JSON URLs in `theme-initializer.gjs` are plain (no `?v=` cache-bust). Whether a user's

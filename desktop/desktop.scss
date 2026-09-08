@@ -11,6 +11,12 @@
        single line instead of wrapping/stacking. Content and chrome shrink at
        the same rate, so the pair keeps fitting all the way down.
 
+       The initializer's auto-fit goes one better: it measures the pills
+       against the space actually available and sets that font-size inline, so
+       the row grows to use the full banner width (up to a cap) instead of
+       leaving dead space on the sides. The clamp() below is the no-JS
+       fallback and the value auto-fit starts from.
+
        flex-wrap: wrap is kept as a safety net (e.g. three-plus pills in
        basketball/baseball season) — pills wrap intact rather than overflow.
        =================================================================== */
@@ -22,7 +28,10 @@
       justify-content: center;
       gap: 1.25em;
       align-items: center;
-      padding: 0.75em 1em;
+      /* Side padding in % (not em) so it stays a constant slice of the banner
+         while auto-fit scales the em base, and so auto-fit can subtract it
+         without a circular measurement. */
+      padding: 0.75em 2.25%;
       background-image: linear-gradient(to bottom right, red, black);
       border-bottom: 1px solid #ddd;
       width: 100%;
@@ -47,6 +56,12 @@
       max-width: 100%;
       min-width: 0;
       justify-content: flex-start;
+    }
+
+    /* Auto-fit measures inside this class: max-width is lifted so a pill that
+       is currently wider than the row still reports its natural width. */
+    #game-schedules.gs-measuring .sport-schedule-box {
+      max-width: none;
     }
 
     .sport-icon {

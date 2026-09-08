@@ -68,6 +68,12 @@
        single line instead of wrapping/stacking. Content and chrome shrink at
        the same rate, so the pair keeps fitting all the way down.
 
+       The initializer's auto-fit goes one better: it measures the pills
+       against the space actually available and sets that font-size inline, so
+       the row grows to use the full banner width (up to a cap) instead of
+       leaving dead space on the sides. The clamp() below is the no-JS
+       fallback and the value auto-fit starts from.
+
        flex-wrap: wrap is kept as a safety net (e.g. three-plus pills in
        basketball/baseball season) — pills wrap intact rather than overflow.
        =================================================================== */
@@ -79,7 +85,10 @@
       justify-content: center;
       gap: 1.25em;
       align-items: center;
-      padding: 0.75em 1em;
+      /* Side padding in % (not em) so it stays a constant slice of the banner
+         while auto-fit scales the em base, and so auto-fit can subtract it
+         without a circular measurement. */
+      padding: 0.75em 2.25%;
       background-image: linear-gradient(to bottom right, red, black);
       border-bottom: 1px solid #ddd;
       width: 100%;
@@ -104,6 +113,12 @@
       max-width: 100%;
       min-width: 0;
       justify-content: flex-start;
+    }
+
+    /* Auto-fit measures inside this class: max-width is lifted so a pill that
+       is currently wider than the row still reports its natural width. */
+    #game-schedules.gs-measuring .sport-schedule-box {
+      max-width: none;
     }
 
     .sport-icon {
@@ -397,6 +412,7 @@
         </div>
       `;
       box.style.display = 'flex';
+      fitIfNeeded();
 
       const dEl = box.querySelector('.cd-d');
       const hEl = box.querySelector('.cd-h');
@@ -415,6 +431,93 @@
       tick();
       const timer = setInterval(() => { if (!tick()) clearInterval(timer); }, 1000);
     };
+
+    // ================================================================
+    // Auto-fit: scale the banner to the width it actually has.
+    //
+    // Every size in desktop.scss is an `em` off #game-schedules'
+    // font-size, so this one inline property scales icons, text, padding
+    // and gaps together. We measure the visible pills at the 16px design
+    // size, compare that against the space left inside the banner, and
+    // pick the largest base size that still keeps them on one line —
+    // capped by MAX_BASE_PX so a very wide monitor doesn't blow the
+    // banner up, floored by MIN_BASE_PX so a narrow window degrades to
+    // wrapping instead of unreadable text.
+    // ================================================================
+    const BASE_PX = 16;       // the size every em in the SCSS was designed against
+    const MIN_BASE_PX = 10;
+    const MAX_BASE_PX = 24;   // 1.5x the design size
+    const ROW_GAP_EM = 1.25;  // must match #game-schedules gap
+    const FIT_SLACK = 0.99;   // a hair of room so a rounding error can't wrap the row
+
+    let fitRow = null;
+    let fitSig = '';
+    let fitWidth = 0;
+    let fitObserver = null;
+
+    const applyFit = (row) => {
+      const pills = Array.from(row.children).filter((el) => el.style.display !== 'none');
+      if (!pills.length) return;
+
+      const previous = row.style.fontSize;
+      row.style.fontSize = BASE_PX + 'px';
+      row.classList.add('gs-measuring');
+
+      const cs = getComputedStyle(row);
+      // clientWidth includes padding, so subtract it to get the usable space.
+      const available =
+        row.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+      let natural = BASE_PX * ROW_GAP_EM * (pills.length - 1);
+      for (const pill of pills) natural += pill.getBoundingClientRect().width;
+
+      row.classList.remove('gs-measuring');
+
+      if (!(natural > 0) || !(available > 0)) {
+        row.style.fontSize = previous;
+        return;
+      }
+
+      const wanted = BASE_PX * ((available * FIT_SLACK) / natural);
+      const size = Math.min(MAX_BASE_PX, Math.max(MIN_BASE_PX, wanted));
+      row.style.fontSize = size.toFixed(2) + 'px';
+    };
+
+    // Cheap guard so the 1s tick doesn't re-measure when nothing moved. The
+    // signature only changes when a pill appears/disappears or its content
+    // changes — the countdown digits are always two characters, so ticking
+    // does not churn it.
+    const fitIfNeeded = () => {
+      const row = document.getElementById('game-schedules');
+      if (!row) return;
+
+      const sig = Array.from(row.children)
+        .map((el) => (el.style.display === 'none' ? '' : el.innerHTML.length))
+        .join('|');
+      if (row === fitRow && sig === fitSig && row.clientWidth === fitWidth) return;
+
+      fitRow = row;
+      fitSig = sig;
+      fitWidth = row.clientWidth;
+      applyFit(row);
+
+      // Re-fit on width changes (window resize, sidebar toggle, zoom). Height
+      // changes from our own font-size write are ignored by the width guard.
+      if (fitObserver) fitObserver.disconnect();
+      if (window.ResizeObserver) {
+        fitObserver = new ResizeObserver(() => {
+          if (row.clientWidth !== fitWidth) {
+            fitWidth = row.clientWidth;
+            applyFit(row);
+          }
+        });
+        fitObserver.observe(row);
+      }
+    };
+
+    // Webfonts land after first paint and change every measurement.
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => { fitSig = ''; fitIfNeeded(); });
+    }
 
     let usedFallback = false;
     const configByDiv = Object.fromEntries(schedulesToLoad.map(c => [c.divId, c]));
@@ -469,6 +572,7 @@
         ${tvChip}
       `;
       targetDiv.style.display = 'flex';
+      fitIfNeeded();
     };
 
     const processSchedule = async (config) => {

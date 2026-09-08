@@ -139,6 +139,8 @@ export default apiInitializer((api) => {
           div.style.display = 'flex';
           div.dataset.rendered = '1';
         }
+
+        fitIfNeeded();
       };
 
       // Update the live countdown numbers on whatever node is currently mounted.
@@ -163,6 +165,93 @@ export default apiInitializer((api) => {
         mEl.textContent = pad2(parseInt(secondsLeft / 60));
         sEl.textContent = pad2(parseInt(secondsLeft % 60));
       };
+
+      // ================================================================
+      // Auto-fit: scale the banner to the width it actually has.
+      //
+      // Every size in desktop.scss is an `em` off #game-schedules'
+      // font-size, so this one inline property scales icons, text, padding
+      // and gaps together. We measure the visible pills at the 16px design
+      // size, compare that against the space left inside the banner, and
+      // pick the largest base size that still keeps them on one line —
+      // capped by MAX_BASE_PX so a very wide monitor doesn't blow the
+      // banner up, floored by MIN_BASE_PX so a narrow window degrades to
+      // wrapping instead of unreadable text.
+      // ================================================================
+      const BASE_PX = 16;       // the size every em in the SCSS was designed against
+      const MIN_BASE_PX = 10;
+      const MAX_BASE_PX = 24;   // 1.5x the design size
+      const ROW_GAP_EM = 1.25;  // must match #game-schedules gap
+      const FIT_SLACK = 0.99;   // a hair of room so a rounding error can't wrap the row
+
+      let fitRow = null;
+      let fitSig = '';
+      let fitWidth = 0;
+      let fitObserver = null;
+
+      const applyFit = (row) => {
+        const pills = Array.from(row.children).filter((el) => el.style.display !== 'none');
+        if (!pills.length) return;
+
+        const previous = row.style.fontSize;
+        row.style.fontSize = BASE_PX + 'px';
+        row.classList.add('gs-measuring');
+
+        const cs = getComputedStyle(row);
+        // clientWidth includes padding, so subtract it to get the usable space.
+        const available =
+          row.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+        let natural = BASE_PX * ROW_GAP_EM * (pills.length - 1);
+        for (const pill of pills) natural += pill.getBoundingClientRect().width;
+
+        row.classList.remove('gs-measuring');
+
+        if (!(natural > 0) || !(available > 0)) {
+          row.style.fontSize = previous;
+          return;
+        }
+
+        const wanted = BASE_PX * ((available * FIT_SLACK) / natural);
+        const size = Math.min(MAX_BASE_PX, Math.max(MIN_BASE_PX, wanted));
+        row.style.fontSize = size.toFixed(2) + 'px';
+      };
+
+      // Cheap guard so the 1s tick doesn't re-measure when nothing moved. The
+      // signature only changes when a pill appears/disappears or its content
+      // changes — the countdown digits are always two characters, so ticking
+      // does not churn it.
+      const fitIfNeeded = () => {
+        const row = document.getElementById('game-schedules');
+        if (!row) return;
+
+        const sig = Array.from(row.children)
+          .map((el) => (el.style.display === 'none' ? '' : el.innerHTML.length))
+          .join('|');
+        if (row === fitRow && sig === fitSig && row.clientWidth === fitWidth) return;
+
+        fitRow = row;
+        fitSig = sig;
+        fitWidth = row.clientWidth;
+        applyFit(row);
+
+        // Re-fit on width changes (window resize, sidebar toggle, zoom). Height
+        // changes from our own font-size write are ignored by the width guard.
+        if (fitObserver) fitObserver.disconnect();
+        if (window.ResizeObserver) {
+          fitObserver = new ResizeObserver(() => {
+            if (row.clientWidth !== fitWidth) {
+              fitWidth = row.clientWidth;
+              applyFit(row);
+            }
+          });
+          fitObserver.observe(row);
+        }
+      };
+
+      // Webfonts land after first paint and change every measurement.
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(() => { fitSig = ''; fitIfNeeded(); });
+      }
 
       const loadSchedule = async (config) => {
         try {
