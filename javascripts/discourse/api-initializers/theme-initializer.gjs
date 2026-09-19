@@ -269,6 +269,11 @@ export default apiInitializer((api) => {
         let natural = BASE_PX * ROW_GAP_EM * (pills.length - 1);
         for (const pill of pills) natural += pill.getBoundingClientRect().width;
 
+        // A lone pill would otherwise stretch across the whole banner and look
+        // oversized. Measure it as if a second pill of the same width sat next to
+        // it, so a single pill lands at the size two pills would have had.
+        if (pills.length === 1) natural = natural * 2 + BASE_PX * ROW_GAP_EM;
+
         row.classList.remove('gs-measuring');
 
         if (!(natural > 0) || !(available > 0)) {

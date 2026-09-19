@@ -51,6 +51,10 @@ auto-fit block in `theme-initializer.gjs`:
 - `MIN_BASE_PX` (10) — floor; below this the pills wrap to a second line instead of shrinking further.
 - The visible side margin is the `2.25%` horizontal padding on `#game-schedules`.
 
+When only one pill is visible it is measured as if a second pill of the same width sat
+beside it, so a lone pill renders at the size two pills would have instead of stretching
+across the whole banner.
+
 The `clamp()` on that same property is the no-JS fallback.
 
 ## Notes
