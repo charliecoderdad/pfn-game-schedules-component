@@ -378,15 +378,46 @@
       ]
     };
 
-    const getTodayInEST = () => {
-      const now = new Date();
-      const formatter = new Intl.DateTimeFormat('en-CA', {
+    // Current date AND clock in America/New_York. Reading both from Intl keeps
+    // this DST-correct without hard-coding a -04:00/-05:00 offset.
+    const getNowInEST = () => {
+      const parts = new Intl.DateTimeFormat('en-CA', {
         timeZone: 'America/New_York',
         year: 'numeric',
         month: '2-digit',
-        day: '2-digit'
-      });
-      return formatter.format(now);
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }).formatToParts(new Date());
+      const get = (type) => parts.find((p) => p.type === type).value;
+      const hour = parseInt(get('hour'), 10) % 24; // some engines say 24 at midnight
+      return {
+        date: `${get('year')}-${get('month')}-${get('day')}`,
+        minutes: hour * 60 + parseInt(get('minute'), 10)
+      };
+    };
+
+    // "7:00 PM" -> minutes since midnight; 'TBD'/null/unparseable -> null.
+    const parseGameMinutes = (time) => {
+      const m = /^(\d{1,2}):(\d{2})\s*([AP])\.?M\.?$/i.exec(String(time || '').trim());
+      if (!m) return null;
+      const hour = (parseInt(m[1], 10) % 12) + (m[3].toUpperCase() === 'P' ? 12 : 0);
+      return hour * 60 + parseInt(m[2], 10);
+    };
+
+    // Next game on or after today (ET) — but once a game has kicked off its
+    // pill goes away for the rest of that day; the following game takes over at
+    // midnight ET, not at kickoff. A 'TBD' time has no kickoff to pass, so that
+    // game holds the pill all day. Returns null when nothing should show.
+    const pickUpcomingGame = (games, now) => {
+      const next = games.find((game) => game.date >= now.date);
+      if (!next) return null;
+      if (next.date === now.date) {
+        const kickoff = parseGameMinutes(next.time);
+        if (kickoff !== null && now.minutes >= kickoff) return null;
+      }
+      return next;
     };
 
     // ===== Tip Off Countdown pill (mockup take #7) =====
@@ -521,7 +552,8 @@
 
     let usedFallback = false;
     const configByDiv = Object.fromEntries(schedulesToLoad.map(c => [c.divId, c]));
-    const loadedGames = {}; // divId -> upcoming game object
+    const allGames = {};    // divId -> sorted games array
+    const loadedGames = {}; // divId -> upcoming game object (absent = show nothing)
 
     // Preview-only: let the football opponent be overridden so you can eyeball a
     // longer name (e.g. "North Carolina") next to the countdown pill.
@@ -535,9 +567,14 @@
 
     const renderPill = (config) => {
       const game = loadedGames[config.divId];
-      if (!game) return;
       const targetDiv = document.getElementById(config.divId);
       if (!targetDiv) return;
+      if (!game) {
+        targetDiv.innerHTML = '';
+        targetDiv.style.display = 'none';
+        fitIfNeeded();
+        return;
+      }
 
       const gameDateParts = game.date.split('-');
       const gameDate = new Date(gameDateParts[0], gameDateParts[1] - 1, gameDateParts[2]);
@@ -587,12 +624,24 @@
         games = sampleData[config.divId] || [];
       }
 
-      const todayESTString = getTodayInEST();
       games.sort((a, b) => a.date.localeCompare(b.date));
-      const upcomingGame = games.find(game => game.date >= todayESTString);
+      allGames[config.divId] = games;
+      refreshPills();
+    };
 
-      if (upcomingGame) {
-        loadedGames[config.divId] = upcomingGame;
+    // Re-pick what each sport should show. Runs on a tick so a page left open
+    // through a kickoff (or past midnight ET) updates itself.
+    const refreshPills = () => {
+      const now = getNowInEST();
+      for (const config of schedulesToLoad) {
+        const games = allGames[config.divId];
+        if (!games) continue;
+        const game = pickUpcomingGame(games, now);
+        const wasKey = loadedGames[config.divId]
+          ? `${loadedGames[config.divId].date}|${loadedGames[config.divId].opponent}` : '';
+        const key = game ? `${game.date}|${game.opponent}` : '';
+        if (key === wasKey) continue;
+        loadedGames[config.divId] = game;
         renderPill(config);
       }
     };
@@ -602,7 +651,9 @@
       renderPill(configByDiv['football']);
     });
 
-    document.getElementById('today-est').textContent = getTodayInEST();
+    document.getElementById('today-est').textContent = getNowInEST().date;
+
+    setInterval(refreshPills, 1000);
 
     renderCountdown();
 

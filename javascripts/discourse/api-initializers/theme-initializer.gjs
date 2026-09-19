@@ -29,20 +29,59 @@ export default apiInitializer((api) => {
       ];
 
       /**
-       * Gets the current date in the 'America/New_York' (EST/EDT) timezone.
-       * @returns {string} The current date as a 'YYYY-MM-DD' string.
+       * Gets the current date AND clock in the 'America/New_York' (EST/EDT)
+       * timezone. Reading both from Intl keeps this DST-correct without ever
+       * hard-coding a -04:00/-05:00 offset.
+       * @returns {{date: string, minutes: number}} 'YYYY-MM-DD' plus minutes since ET midnight.
        */
-      const getTodayInEST = () => {
-        const now = new Date();
-        // Use Intl.DateTimeFormat to get date parts for the specified timezone.
-        const formatter = new Intl.DateTimeFormat('en-CA', {
+      const getNowInEST = () => {
+        const parts = new Intl.DateTimeFormat('en-CA', {
           timeZone: 'America/New_York',
           year: 'numeric',
           month: '2-digit',
-          day: '2-digit'
-        });
-        // 'en-CA' locale reliably gives YYYY-MM-DD format.
-        return formatter.format(now);
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          hour12: false
+        }).formatToParts(new Date());
+
+        const get = (type) => parts.find((p) => p.type === type).value;
+        // Some engines report midnight as hour 24 in the h23/h24 cycle.
+        const hour = parseInt(get('hour'), 10) % 24;
+
+        return {
+          date: `${get('year')}-${get('month')}-${get('day')}`,
+          minutes: hour * 60 + parseInt(get('minute'), 10)
+        };
+      };
+
+      /**
+       * Turns a schedule time like "7:00 PM" into minutes since midnight.
+       * Returns null for 'TBD', null, or anything unparseable.
+       */
+      const parseGameMinutes = (time) => {
+        const m = /^(\d{1,2}):(\d{2})\s*([AP])\.?M\.?$/i.exec(String(time || '').trim());
+        if (!m) return null;
+        const hour = (parseInt(m[1], 10) % 12) + (m[3].toUpperCase() === 'P' ? 12 : 0);
+        return hour * 60 + parseInt(m[2], 10);
+      };
+
+      /**
+       * The pill shows the next game on or after today (ET) — but once a game
+       * has kicked off, its pill goes away for the rest of that day rather than
+       * jumping straight to the next opponent. The following game takes over at
+       * midnight ET. A game whose time is 'TBD' has no kickoff to pass, so it
+       * holds the pill for the whole day.
+       * @returns the game to display, or null to hide the pill.
+       */
+      const pickUpcomingGame = (games, now) => {
+        const next = games.find((game) => game.date >= now.date);
+        if (!next) return null;
+        if (next.date === now.date) {
+          const kickoff = parseGameMinutes(next.time);
+          if (kickoff !== null && now.minutes >= kickoff) return null;
+        }
+        return next;
       };
 
       // ================================================================
@@ -108,10 +147,30 @@ export default apiInitializer((api) => {
                         `;
       };
 
-      // Cache of computed pill HTML keyed by divId. Populated once by the
-      // fetches below; the render pass reads from here so it never depends on
-      // the network resolving at a particular moment.
-      const pillHtml = {};
+      // Per-sport state keyed by divId. The fetches below fill scheduleGames
+      // once; refreshPills() then re-picks the game to show on every tick, so a
+      // tab left open through a kickoff (or past midnight) still updates. The
+      // render pass reads from here, so it never depends on the network
+      // resolving at a particular moment.
+      const scheduleGames = {}; // divId -> sorted games array
+      const pillHtml = {};      // divId -> rendered pill HTML ('' = show nothing)
+      const pillKey = {};       // divId -> key of the game currently in pillHtml
+
+      // Re-evaluate which game each sport should be showing. Cheap enough to
+      // run on the 1s tick: one Intl read plus a find() per sport, and the HTML
+      // is only rebuilt when the chosen game actually changes.
+      const refreshPills = () => {
+        const now = getNowInEST();
+        for (const config of schedulesToLoad) {
+          const games = scheduleGames[config.divId];
+          if (!games) continue; // not loaded yet
+          const game = pickUpcomingGame(games, now);
+          const key = game ? `${game.date}|${game.opponent}` : '';
+          if (pillKey[config.divId] === key) continue;
+          pillKey[config.divId] = key;
+          pillHtml[config.divId] = game ? buildGameHtml(config, game) : '';
+        }
+      };
 
       // Apply cached content into the CURRENT header DOM. Idempotent and safe to
       // call as often as we like: it no-ops when the nodes are already populated,
@@ -119,6 +178,8 @@ export default apiInitializer((api) => {
       // This is the fix for the old race where getElementById ran after `await
       // fetch` and hit a null (already-replaced) node.
       const render = () => {
+        refreshPills();
+
         // Countdown pill.
         const cdBox = document.getElementById('tipoff-countdown');
         if (cdBox && TIPOFF_TARGET.getTime() - Date.now() > 0) {
@@ -129,15 +190,19 @@ export default apiInitializer((api) => {
           }
         }
 
-        // Game pills.
+        // Game pills. The node carries the key of whatever it is showing, so
+        // this both fills a freshly re-rendered (empty) node and swaps the
+        // content when refreshPills() picked a different game — or hides the
+        // pill entirely once today's game has started.
         for (const config of schedulesToLoad) {
-          const html = pillHtml[config.divId];
-          if (!html) continue; // not loaded yet, or no upcoming game
+          const key = pillKey[config.divId];
+          if (key === undefined) continue; // not loaded yet
           const div = document.getElementById(config.divId);
-          if (!div || div.dataset.rendered === '1') continue;
+          if (!div || div.dataset.gameKey === key) continue;
+          div.dataset.gameKey = key;
+          const html = pillHtml[config.divId];
           div.innerHTML = html;
-          div.style.display = 'flex';
-          div.dataset.rendered = '1';
+          div.style.display = html ? 'flex' : 'none';
         }
 
         fitIfNeeded();
@@ -260,19 +325,11 @@ export default apiInitializer((api) => {
 
           const games = await response.json();
 
-          // Get today's date as a string according to the EST timezone.
-          const todayESTString = getTodayInEST();
-
           // Sort games by date using simple string comparison, which is reliable for YYYY-MM-DD format.
           games.sort((a, b) => a.date.localeCompare(b.date));
 
-          // Find the first game where the date string is on or after today's date string.
-          const upcomingGame = games.find(game => game.date >= todayESTString);
-
-          if (upcomingGame) {
-            pillHtml[config.divId] = buildGameHtml(config, upcomingGame);
-            render(); // apply as soon as this schedule is ready
-          }
+          scheduleGames[config.divId] = games;
+          render(); // pick and apply as soon as this schedule is ready
         } catch (error) {
           console.error(`Could not load schedule for ${config.title}:`, error);
         }

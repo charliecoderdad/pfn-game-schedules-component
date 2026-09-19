@@ -3,7 +3,13 @@
 A Discourse **theme component** for [packfansnation.com](https://forums.packfansnation.com/)
 that renders the next upcoming NC State game for football, men's/women's basketball, and
 baseball. It fetches `schedule-<sport>.json` from the `pfn-static` S3 bucket at runtime and
-shows the next game on or after today (compared in `America/New_York`).
+shows the next upcoming game (all date/time comparisons happen in `America/New_York`).
+
+A sport's pill disappears the moment that game's listed start time arrives, and stays
+hidden for the rest of the day — the *next* game takes over at midnight ET, not at kickoff.
+A game whose `time` is `TBD` has no start time to pass, so it holds the pill all day.
+The pills re-evaluate on a 1-second tick, so a tab left open through a kickoff or past
+midnight updates itself without a reload.
 
 ## Layout
 
