@@ -1,6 +1,25 @@
 import { apiInitializer } from "discourse/lib/api";
 
 export default apiInitializer((api) => {
+      // ================================================================
+      // Cache-bust token appended to every schedule JSON fetch.
+      //
+      // Bump this whenever you overwrite a schedule JSON in S3 (then commit,
+      // push, and Update the component in Admin > Customize > Themes).
+      //
+      // Why this exists: `Cache-Control: max-age=300` on the S3 objects is
+      // not enough on its own. Discourse registers a service worker, and it
+      // can answer the initializer's fetch() from its own cache — so a
+      // viewer keeps seeing a stale schedule even after a hard refresh,
+      // which bypasses the HTTP cache but not the service worker. Changing
+      // the URL sidesteps every cache layer at once.
+      //
+      // (Commit 4dec7d8 removed an earlier ?v= param; it is back because a
+      // stale men's basketball schedule survived a hard refresh on
+      // 2026-11-02 while the same URL loaded correctly in a plain tab.)
+      // ================================================================
+      const SCHEDULE_VERSION = '2026-11-02';
+
       const schedulesToLoad = [
         {
           divId: 'football',
@@ -333,7 +352,10 @@ export default apiInitializer((api) => {
 
       const loadSchedule = async (config) => {
         try {
-          const response = await fetch(config.url);
+          // ?v= defeats the HTTP cache *and* the Discourse service worker.
+          const response = await fetch(
+            `${config.url}?v=${encodeURIComponent(SCHEDULE_VERSION)}`
+          );
           if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
           const games = await response.json();

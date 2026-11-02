@@ -59,11 +59,23 @@ The `clamp()` on that same property is the no-JS fallback.
 
 ## Notes
 
-- The JSON URLs in `theme-initializer.gjs` are plain (no `?v=` cache-bust). Whether a user's
-  browser re-fetches immediately after you update the S3 JSON depends on the S3 object's
-  `Cache-Control` headers, not on the component. If stale schedules become a problem, set a
-  short `Cache-Control` (e.g. `max-age=300`) on the S3 objects, or re-introduce a `?v=` param
-  that you bump on each update.
+- **After you overwrite a schedule JSON in S3, bump `SCHEDULE_VERSION` at the top of
+  `theme-initializer.gjs`**, then commit, push, and Update the component. That token is
+  appended to every schedule fetch as `?v=`.
+
+  Two cache layers sit in front of the JSON and you need both handled:
+
+  1. The S3 objects are served with `Cache-Control: max-age=300` (set 2026-11-02 via
+     `aws s3 cp <key> <key> --metadata-directive REPLACE --content-type application/json
+     --cache-control max-age=300`). Note that a plain `aws s3 cp <file> s3://...` upload
+     does **not** carry that header forward — pass `--cache-control` on the upload too, or
+     re-apply it afterwards.
+  2. Discourse registers a **service worker**, which can answer the initializer's `fetch()`
+     from its own cache regardless of the S3 headers. A hard refresh (Ctrl+Shift+R) bypasses
+     the HTTP cache but *not* the service worker, so a stale schedule can survive one. This
+     is why `?v=` is back after commit `4dec7d8` removed it: on 2026-11-02 a new men's
+     basketball schedule loaded correctly in a plain browser tab while the banner kept
+     rendering the previous season.
 - The schedule *data* (the JSON files themselves) lives in the `pfn-static` S3 bucket, which
   is the source of truth. This repo is primarily the display component, but it also carries the
   `update-football-schedule` Claude skill (`.claude/skills/`) and a git-tracked staging copy of
