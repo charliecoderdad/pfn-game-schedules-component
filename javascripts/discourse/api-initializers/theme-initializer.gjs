@@ -29,13 +29,13 @@ export default apiInitializer((api) => {
         },
         {
           divId: 'mens-basketball',
-          title: 'Men\'s Basketball',
+          title: 'Men\'s Hoops',
           url: 'https://pfn-static.s3.us-east-2.amazonaws.com/schedule-mens-basketball.json',
           iconUrl: 'https://pfn-static.s3.us-east-2.amazonaws.com/images/mens-basketball-game-schedule-icon.png'
         },
         {
           divId: 'womens-basketball',
-          title: 'Women\'s Basketball',
+          title: 'Women\'s Hoops',
           url: 'https://pfn-static.s3.us-east-2.amazonaws.com/schedule-womens-basketball.json',
           iconUrl: 'https://pfn-static.s3.us-east-2.amazonaws.com/images/womens-basketball-game-schedule-icon.png'
         },
