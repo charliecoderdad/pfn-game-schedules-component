@@ -1,0 +1,258 @@
+[
+  {
+    "opponent": "Campbell",
+    "date": "2026-11-02",
+    "time": "7:30 PM",
+    "home": true,
+    "location": "Lenovo Center",
+    "tv": "ACC Network Extra"
+  },
+  {
+    "opponent": "ETSU",
+    "date": "2026-11-06",
+    "time": "7:00 PM",
+    "home": true,
+    "location": "Lenovo Center",
+    "tv": "ACC Network Extra"
+  },
+  {
+    "opponent": "Presbyterian",
+    "date": "2026-11-10",
+    "time": "7:00 PM",
+    "home": true,
+    "location": "Lenovo Center",
+    "tv": "ACC Network Extra"
+  },
+  {
+    "opponent": "Troy",
+    "date": "2026-11-13",
+    "time": "7:00 PM",
+    "home": true,
+    "location": "Lenovo Center",
+    "tv": "ACC Network"
+  },
+  {
+    "opponent": "Murray State",
+    "date": "2026-11-19",
+    "time": "6:00 PM",
+    "home": true,
+    "location": "Nassau, Bahamas",
+    "tv": "CBS Sports Network"
+  },
+  {
+    "opponent": "Seton Hall or Wisconsin",
+    "date": "2026-11-20",
+    "time": "TBD",
+    "home": true,
+    "location": "Nassau, Bahamas",
+    "tv": "CBS Sports Network"
+  },
+  {
+    "opponent": "Norfolk State",
+    "date": "2026-11-25",
+    "time": "7:00 PM",
+    "home": true,
+    "location": "Lenovo Center",
+    "tv": "ACC Network Extra"
+  },
+  {
+    "opponent": "Elon",
+    "date": "2026-11-28",
+    "time": "12:00 PM",
+    "home": true,
+    "location": "Lenovo Center",
+    "tv": "ACC Network Extra"
+  },
+  {
+    "opponent": "South Carolina",
+    "date": "2026-12-01",
+    "time": "7:00 PM",
+    "home": true,
+    "location": "Lenovo Center",
+    "tv": "ACC Network"
+  },
+  {
+    "opponent": "Tennessee",
+    "date": "2026-12-06",
+    "time": "7:00 PM",
+    "home": true,
+    "location": "Nashville, TN",
+    "tv": "ESPN"
+  },
+  {
+    "opponent": "UNCG",
+    "date": "2026-12-11",
+    "time": "7:00 PM",
+    "home": true,
+    "location": "Reynolds Coliseum",
+    "tv": "ACC Network"
+  },
+  {
+    "opponent": "North Carolina",
+    "date": "2026-12-15",
+    "time": "7:00 PM",
+    "home": true,
+    "location": "Greensboro, NC",
+    "tv": "ESPN2"
+  },
+  {
+    "opponent": "Ole Miss",
+    "date": "2026-12-19",
+    "time": "7:00 PM",
+    "home": true,
+    "location": "Jackson, MS",
+    "tv": "ESPNU"
+  },
+  {
+    "opponent": "Alabama A&M",
+    "date": "2026-12-22",
+    "time": "1:00 PM",
+    "home": true,
+    "location": "Lenovo Center",
+    "tv": "ACC Network Extra"
+  },
+  {
+    "opponent": "Miami",
+    "date": "2026-12-29",
+    "time": "8:00 PM",
+    "home": false,
+    "location": "Coral Gables, FL",
+    "tv": "ACC Network"
+  },
+  {
+    "opponent": "Clemson",
+    "date": "2027-01-02",
+    "time": "1:00 PM",
+    "home": true,
+    "location": "Lenovo Center",
+    "tv": "ACC Network"
+  },
+  {
+    "opponent": "Pitt",
+    "date": "2027-01-06",
+    "time": "7:00 PM",
+    "home": true,
+    "location": "Lenovo Center",
+    "tv": "ESPN2/U"
+  },
+  {
+    "opponent": "North Carolina",
+    "date": "2027-01-09",
+    "time": "12:00 PM",
+    "home": false,
+    "location": "Chapel Hill, NC",
+    "tv": "ESPN2"
+  },
+  {
+    "opponent": "SMU",
+    "date": "2027-01-12",
+    "time": "9:00 PM",
+    "home": true,
+    "location": "Lenovo Center",
+    "tv": "ACC Network"
+  },
+  {
+    "opponent": "Georgia Tech",
+    "date": "2027-01-19",
+    "time": "9:00 PM",
+    "home": false,
+    "location": "Atlanta, GA",
+    "tv": "ACC Network"
+  },
+  {
+    "opponent": "Wake Forest",
+    "date": "2027-01-23",
+    "time": "12:00 PM",
+    "home": true,
+    "location": "Lenovo Center",
+    "tv": "The CW"
+  },
+  {
+    "opponent": "Cal",
+    "date": "2027-01-27",
+    "time": "9:00 PM",
+    "home": false,
+    "location": "Berkeley, CA",
+    "tv": "ACC Network"
+  },
+  {
+    "opponent": "Stanford",
+    "date": "2027-01-30",
+    "time": "8:00 PM",
+    "home": false,
+    "location": "Stanford, CA",
+    "tv": "ACC Network"
+  },
+  {
+    "opponent": "Florida State",
+    "date": "2027-02-03",
+    "time": "6:00 PM",
+    "home": true,
+    "location": "Lenovo Center",
+    "tv": "ESPN2/U"
+  },
+  {
+    "opponent": "Wake Forest",
+    "date": "2027-02-10",
+    "time": "7:00 PM",
+    "home": false,
+    "location": "Winston-Salem, NC",
+    "tv": "ACC Network"
+  },
+  {
+    "opponent": "Boston College",
+    "date": "2027-02-13",
+    "time": "1:00 PM",
+    "home": true,
+    "location": "Lenovo Center",
+    "tv": "The CW"
+  },
+  {
+    "opponent": "Virginia Tech",
+    "date": "2027-02-17",
+    "time": "7:00 PM",
+    "home": false,
+    "location": "Blacksburg, VA",
+    "tv": "ESPN2/U"
+  },
+  {
+    "opponent": "Cal",
+    "date": "2027-02-20",
+    "time": "12:00 PM",
+    "home": true,
+    "location": "Lenovo Center",
+    "tv": "The CW"
+  },
+  {
+    "opponent": "Notre Dame",
+    "date": "2027-02-24",
+    "time": "7:00 PM",
+    "home": true,
+    "location": "Lenovo Center",
+    "tv": "ACC Network"
+  },
+  {
+    "opponent": "Duke",
+    "date": "2027-02-27",
+    "time": "12:00 PM",
+    "home": false,
+    "location": "Durham, NC",
+    "tv": "ESPN"
+  },
+  {
+    "opponent": "Louisville",
+    "date": "2027-03-02",
+    "time": "7:00 PM",
+    "home": true,
+    "location": "Lenovo Center",
+    "tv": "ESPN/2/U/ACC Network"
+  },
+  {
+    "opponent": "Virginia",
+    "date": "2027-03-06",
+    "time": "12:00 PM",
+    "home": false,
+    "location": "Charlottesville, VA",
+    "tv": "The CW"
+  }
+]
