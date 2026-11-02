@@ -18,7 +18,7 @@ export default apiInitializer((api) => {
       // stale men's basketball schedule survived a hard refresh on
       // 2026-11-02 while the same URL loaded correctly in a plain tab.)
       // ================================================================
-      const SCHEDULE_VERSION = '2026-11-02';
+      const SCHEDULE_VERSION = '2026-11-02b';
 
       const schedulesToLoad = [
         {

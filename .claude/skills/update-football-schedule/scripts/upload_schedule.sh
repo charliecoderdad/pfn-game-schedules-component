@@ -12,6 +12,10 @@ SRC="${1:?usage: upload_schedule.sh <local-json-path>}"
 BUCKET="pfn-static"
 KEY="schedule-football.json"
 REGION="us-east-2"
+# Keep this in step with the other schedule objects. A plain upload sends no
+# Cache-Control at all, which makes browsers fall back to heuristic freshness
+# (~10% of the object's age) and sit on a stale schedule for weeks.
+CACHE_CONTROL="max-age=300"
 
 if [ ! -f "$SRC" ]; then
   echo "ERROR: source file not found: $SRC" >&2
@@ -26,7 +30,8 @@ fi
 echo "Uploading $SRC -> s3://${BUCKET}/${KEY} ..."
 aws s3 cp "$SRC" "s3://${BUCKET}/${KEY}" \
   --region "$REGION" \
-  --content-type "application/json"
+  --content-type "application/json" \
+  --cache-control "$CACHE_CONTROL"
 
 # Verify: re-download and compare.
 VERIFY="$(mktemp)"
@@ -35,6 +40,9 @@ aws s3 cp "s3://${BUCKET}/${KEY}" "$VERIFY" --region "$REGION" >/dev/null
 
 if cmp -s "$SRC" "$VERIFY"; then
   echo "VERIFIED: uploaded object matches local file."
+  printf 'Cache-Control now: '
+  aws s3api head-object --bucket "$BUCKET" --key "$KEY" --region "$REGION" \
+    --query 'CacheControl' --output text
 else
   echo "WARNING: uploaded object does NOT match local file after re-download." >&2
   exit 1
